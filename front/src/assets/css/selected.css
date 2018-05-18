@@ -1,3 +1,5 @@
+
+
 .selected {
 
 }
@@ -118,7 +120,11 @@
     position: absolute;
     border: 1px solid #f38385;
     border-top: none;
-    right: 190px;
+    /* text-align: center; */
+    right: 40px;
+     /* margin-left: auto; margin-right: auto; */
+     /* left: 50%;
+     transform: translateX(-50%); */
     top: 60px;
 }
 
@@ -164,6 +170,7 @@
 .selected .content .block.half {
     width: 620px;
 }
+
 .selected .content .block.half.best {
     margin-left: 100px;
 }
@@ -182,6 +189,74 @@
 
 .selected .content .block .graph_wrap {
     overflow: hidden;
+}
+.graph_wrap .graph{
+  position: relative;
+}
+
+.selected .content .block.half .graph_wrap .graph .graph_size{
+  width: 460px;
+}
+
+.selected .content .block .graph_wrap .graph_over{
+  position: relative;
+}
+
+.graph .over_image{
+  position:  absolute;
+  width: 100%;
+  height: 100%;
+  top: 1px;
+  background: white;
+  /* border: 2px solid #887e7e; */
+  filter:opacity(70%);
+  /* filter:blur(3px); */
+  text-align: center;
+  vertical-align: middle;
+}
+
+.graph .over_image.st2{
+  display: inline;
+  /* width: 1200px; */
+  height: 400px;
+}
+
+.graph .over_image.kw{
+  height: 400px;
+}
+
+.over_image > p{
+  /* width: 100px; */
+  margin:180px 0;
+  font-size: 40px;
+}
+
+.sent_graph2{
+  width: 100%;
+  height: 400px;
+}
+
+.selected .content .block.half .graph_wrap .graph .graph_sentiment {
+    background-color: red;
+    height: 82px;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.graph_sentiment .sentiment_img {
+  position: relative;
+  top: 10px;
+  filter:brightness(10);
+}
+
+.graph_sentiment .sentiment_percent {
+  position: absolute;
+  top: 10px;
+  left: 100%;
+}
+.sentiment_percent p {
+  left: 100%;
+  font-size: 48px;
 }
 
 .selected .content .block .social_wrap {
@@ -240,7 +315,7 @@
 }
 .selected .content .block .graph {
     float: left;
-    margin-left: 100px;
+    margin-left: 30px;
     width: 620px;
 }
 
@@ -265,6 +340,7 @@
     height: 0px;
     line-height: 32px;
     /*width: 100%;*/
+    cursor: pointer;
 }
 
 .selected .content .block .graph.best_seller .menu:after {
@@ -347,4 +423,28 @@
     border: 2px solid #887e7e;
     padding: 5px 15px;
     border-radius: 30px;
+}
+
+.btn {
+  background-color: #4CAF50; /* Green */
+  color: white;
+  padding: 5px 15px 5px 15px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  line-height: 20px;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.btn_back_to_keyword {
+  position: relative;
+  display: inline-block;
+  padding: 5px 25px 5px 25px;
+  line-height: 20px;
+  background-color: #FFFFFF;
+  color: #4a4a4a;
+  border: solid 2px #887e7e;
+  border-radius: 15px;
+  left: 100%;
 }

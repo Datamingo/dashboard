@@ -9,7 +9,7 @@
       <div class="search_bar">
 
         <!--<input type="text"/>-->
-        <autocomplate
+        <!-- <autocomplate
           url="https://maps.googleapis.com/maps/api/geocode/json?address="
           anchor="formatted_address"
           label="geometry.bounds"
@@ -22,7 +22,7 @@
         </autocomplate>
 
 
-        <input type="submit" class="search" value="Search" @click="searchClick"/>
+        <input type="submit" class="search" value="Search" @click="searchClick"/> -->
 
 
         <!-- <input type="submit" @click="searchClick" value="Search" class="searched"/> -->
@@ -38,9 +38,8 @@
                     <!--<span class="default">Country</span>-->
                 <!--</div>-->
 
-                <dropdown :title="'Country'" :values="arrCountry"  @change-select="changePickCountry"></dropdown>
-                <dropdown :title="'Category'" :values="arrCategory"  @change-select="changePickCategory"></dropdown>
-
+                <dropdown :title="'Region'" :values="arrCountry"  @change-select="changePickCountry"></dropdown>
+                <dropdown :title="'Category'" :values="arrPrintCategory"  @change-select="changePickCategory"></dropdown>
                 <calendar :year="2018" :month="3" :title_class="'default'" @change-date="changeDateFunc"></calendar>
 
             </div>
@@ -50,21 +49,22 @@
             <div class="search_result">
 
                 <!-- state -->
-                <div class="state">
+                <!-- eject this, 18.04.26 -->
+                <!-- <div class="state">
                     <span>Scores</span>
                     <div class="fillter_result">
                         <span>{{ option }}</span>
                         <em class="time">{{ currentTime }}</em>
                     </div>
-                </div>
+                </div> -->
                 <!-- state -->
 
                 <!-- result_view -->
                 <div class="result_view">
                     <div class="top">
-                        <span class="rank">Rank</span>
+                        <span class="rank">Chart</span>
                         <div class="sort">
-                            <span>Score</span>
+                            <span>Position</span>
                             <span>Change</span>
                         </div>
                     </div>
@@ -81,7 +81,7 @@
                         <!--</a>-->
                     <!--</div>-->
                     <div v-model="arrRank" v-for="item in arrRank" class="list">
-                      <a :href="uris + item.company">
+                      <a :href="uris + item.company + getAddingURI().toString()">
                         <div class="row">
                           <span class="name">{{item.company}}</span>
                           <div class="sort">
@@ -107,7 +107,7 @@ import Header from '@/components/Header'
 import Dropdown from './control/Dropdown.vue'
 import Calendar from './control/Calendar.vue'
 import Vue2Autocomplete from 'vue2-autocomplete-js'
-
+import {store} from '../store'
 export default {
   name: 'Search',
   components: {
@@ -125,6 +125,7 @@ export default {
         date: null,
         preContent: {},
         arrCategory: [],
+        arrPrintCategory: [],
         arrCountry: [],
         arrNowMenu: [],
         pickCategory: '',
@@ -168,11 +169,35 @@ export default {
       currentTime: function() {
         var now = new Date()
         return now.toTimeString().split(' ')[0]
+      },
+      changeCategory: function() {
+        var arrRet = [];
+        this.arrCategory.filter( function(item,i) {
+            var ret='';
+            if(str == 'fast food restaurant')
+              ret = 'Brand';
+            else if(str == 'Bakery')
+              ret = 'Bakery hot dogs';
+            else if(str == 'casual dining')
+              ret = 'Restaurant'
+            else
+              ret = str;
+            arrRet.push(item);
+          })
+          return arrRet;
       }
   },
   methods: {
+    setListOfResion: (lst)=>{
+      console.log("Store Test : " + lst);
+      //this.$store.commit('addListOfResion', lst);
+      store.commit('addListOfResion', lst);
+    },
     getURIs: function(){
       return "/#/selected?country=" + this.pickCountry + "&startDate=" + this.getGoogleTrendsApiTime(this.getPreMonthDate2(this.pickDate, 6)) + "&endDate=" + this.getGoogleTrendsApiTime(this.pickDate) + "&company=";
+    },
+    getAddingURI: function(){
+      return "&countryList="+this.arrCountry;
     },
     changeDateFunc: function(date) {
         var year = date / 10000
@@ -187,6 +212,7 @@ export default {
     },
     changePickCategory: function(value) {
         //this.cagetory = value.toUpperCase()
+      value = this.RecoverCategory(value);
       console.log("Value : " + value + ", type : " + typeof(value));
       this.pickCategory = value.toUpperCase();
       this.findCompany().then(this.makeListRank);
@@ -197,6 +223,7 @@ export default {
       this.pickCountry = value.toUpperCase();
       this.findCompany().then(this.makeListRank);
       this.uris = this.getURIs();
+      this.setInformation(this.pickCountry);
     },
     getChangeNumber: function(change) {
         if (change != 0)
@@ -221,6 +248,8 @@ export default {
             this.result = result.data.data;
           }
         });
+
+        this.findCompany().then(this.makeListRank);
     },
     loadMenusFranchises: function(){
       var _arrCategory=[];
@@ -229,33 +258,81 @@ export default {
         .then(result => {
           if(result.status == 200) {
             //console.log(result.data);
+            var comp = [];
             for(var i=0; i < result.data.length; i++) {
+              //console.log("load Category test : " + result.data[i].Category);
               _arrCategory.push(result.data[i].Category);
               _arrCountry.push(result.data[i].Country);
+              //comp.push(result.data[i].Company_Name)
               //console.log(result.data[i].Category);
             };
+            //console.log("**********************************")
+            //console.log(comp);
+
+            // 중복 레스토랑 제거 후 uniq만 저장
             this.arrCategory = _arrCategory.filter(function(item,i){
+              console.log("load Category test [%d]: Category index [%s], name [%s]",i , _arrCategory.indexOf(item), item);
+              // if (_arrCategory.indexOf(item) == i) {
+              //   this.arrPrintCategory.push(this.ConvertCategoryForPrint(item));
+              //   return true;
+              // }
+              // return false;
               return _arrCategory.indexOf(item) == i;
             });
             this.arrCountry = _arrCountry.filter(function(item,i){
               return _arrCountry.indexOf(item) == i;
             });
+            console.log("TESTTEST : " + this.arrCategory);
+            this.arrCategory.forEach(element => {
+              var tmp = this.ConvertCategoryForPrint(element);
+              console.log("TESTTEST : " + tmp);
+              this.arrPrintCategory.push(tmp);
+            });
             console.log(this.arrCategory + "___Size is : " + this.arrCategory.length);
             console.log(this.arrCountry + "___Size is : " + this.arrCountry.length);
+
+            this.setListOfResion(this.arrCountry);
       }
       }).catch(function(err){
         console.log("[ERROR][getMenusFranchises] : " + err);
       });
     },
+    ConvertCategoryForPrint: function(str) {
+      var ret='';
+      if(str == 'fast food restaurant')
+        ret = 'Brand';
+      else if(str == 'Bakery')
+        ret = 'Bakery hot dogs';
+      else if(str == 'casual dining')
+        ret = 'Restaurant'
+      else if(str == 'Hot dogs')
+        ret = 'Cafe'
+      else
+        ret = str;
+      return ret;
+    },
+    RecoverCategory: function(str){
+      var ret='';
+      if(str == 'Brand')
+        ret = 'fast food restaurant';
+      else if(str == 'Bakery hot dogs')
+        ret = 'Bakery';
+      else if(str == 'Restaurant')
+        ret = 'casual dining'
+      else if(str == 'Cafe')
+        ret = 'Hot dogs'
+      else
+        ret = str;
+      return ret;
+    },
     initOptions: function(){
       this.loadMenusFranchises();
-      this.pickCategory = 'fast food restaurant';
-      this.pickCountry = 'UK';
+      this.pickCategory = 'fast food restaurant'.toUpperCase();
+      this.pickCountry = 'UK'.toUpperCase();
       //var tmp = Date.now();
       this.pickDate = new Date('2018','03','01');
+      this.uris = this.getURIs();
       console.log("INI : " + this.pickCategory + this.pickCountry + this.pickDate);
-
-
     },
     searchClick: function() {
         this.search()
@@ -278,11 +355,14 @@ export default {
             for(var i=0; i<result.data.length; i++){
               //console.log("for_Category : " + result.data[i].Category + ", and type : " + typeof(result.data[i].Category));
               //console.log("this_Category : " + this.pickCategory + ", and type : " + typeof(this.pickCategory));
+              console.log("[CMP][Category] : " + result.data[i].Category.toUpperCase());
+              console.log("[CMP][Country] : " + result.data[i].Country.toUpperCase());
                 if( result.data[i].Category.toUpperCase() == this.pickCategory && result.data[i].Country.toUpperCase() == this.pickCountry ) {
                   arrCompany.push(result.data[i].Company_Name);
+                  console.log("[ADD][Company] : " + result.data[i].Company_Name);
                 }
             }
-            console.log("[findCompany]" + arrCompany);
+            console.log("[findCompany] : " + arrCompany);
             resolve(arrCompany);
           }
         }).catch((err) => {
@@ -317,7 +397,7 @@ export default {
       for(var i=0; i<_arrCompany.length; i++) {
         this.queryCompanyRank(_arrCompany, i);
       }
-      console.log("-----------------------------------makeListRank-----------------------------");
+      console.log("-----------------------------------makeListRank-----------------------------" + _arrCompany);
     },
     getPreMonDate: function(_date) {
       var ret = null;
@@ -357,15 +437,21 @@ export default {
       var month = (date % 10000) / 100;
       var day = date % 100;
       return Date.UTC(year, month - 1, day);
-    }
+    },
+    setInformation: (rg)=> {
+      console.log("is there?? : " + rg);
+      //this.$store.commit('addResion', rg);
+      //this.$store.commit('addCompanyName', _company);
+      //this.$store.commit('addDescription', "this is very good noodle in the world.");
+    },
 
   },
   created() {
     this.initOptions();
   },
   mounted() {
-
       this.search()
+
   }
 }
 </script>

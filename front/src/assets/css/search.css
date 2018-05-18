@@ -2,7 +2,6 @@
     width: 1145px;
     margin: 100px auto 100px auto;
 }
-
 .search_bar {
     overflow: hidden;
     /*align-content: space-around;*/
@@ -134,6 +133,9 @@
     padding: 0px 22px;
     box-sizing: border-box;
     font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .select_box .select > ul > li.active, .select_box .select > ul > li:hover {
@@ -145,6 +147,7 @@
     border: 1px solid #f38385;
     top: 34px;
 }
+
 
 .search_result {
     margin-top: 110px;
@@ -265,12 +268,13 @@
 .search_result .result_view .list .row .sort > span.up:before {
     content: "▲";
     margin-right: 3px;
-    color: #f38385;
+    color: #219f87;
 }
 
 .search_result .result_view .list .row .sort > span.down:before {
     content: "▼";
     margin-right: 3px;
-    color: #219f87;
+    color: #f38385;
+
 }
 
